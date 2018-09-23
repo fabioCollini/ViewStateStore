@@ -25,6 +25,20 @@ class MainUseCaseTest {
     private val useCase = MainUseCase(repository)
 
     @Test
+    fun toggleUserUsingRepository() {
+        coEvery { repository.toggleUser(USER_1) } returns
+                USER_1.copy(starred = true)
+
+        val initialState = UserListViewState(listOf(USER_1, USER_2))
+        val action = runBlocking {
+            useCase.toggleUser(initialState, 0)
+        }
+        val finalState = action(initialState)
+
+        assert(finalState.users[0].starred).isTrue()
+    }
+
+    @Test
     fun changeStateOnSuccessLoading() {
         coEvery { repository.getList() } returns listOf(USER_1, USER_2)
         coEvery { repository.isStarred(1) } returns true

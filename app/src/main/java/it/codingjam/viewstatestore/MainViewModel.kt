@@ -30,13 +30,17 @@ class MainViewModel(
             useCase.toggleUser(it)
         })
         store.dispatchState(newState)
+//        launch {
+//            val newState = useCase.toggleUser(store.state(), position)
+//            store.dispatchState(newState(store.state()))
+//        }
     }
 
-    fun toggleUserAsync(position: Int) {
-        store.dispatchAction {
-            useCase.toggleUser(store.state(), position)
-        }
+fun toggleUserAsync(position: Int) {
+    store.dispatchAction {
+        useCase.toggleUser(it, position)
     }
+}
 
     override fun onCleared() {
         store.cancel()
@@ -46,5 +50,11 @@ class MainViewModel(
 inline fun <T> List<T>.replaceAt(position: Int, f: (T) -> T): List<T> {
     return mapIndexed { index, item ->
         if (index == position) f(item) else item
+    }
+}
+
+fun <T> List<T>.replaceAt(position: Int, newValue: T): List<T> {
+    return mapIndexed { index, item ->
+        if (index == position) newValue else item
     }
 }

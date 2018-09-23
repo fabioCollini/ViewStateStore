@@ -2,6 +2,7 @@ package it.codingjam.viewstatestore
 
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.coroutineScope
 import kotlinx.coroutines.experimental.delay
 import java.util.*
 
@@ -13,29 +14,29 @@ data class User(
 
 class Repository {
 
-    fun getList(): Deferred<List<User>> {
-        return async {
+    suspend fun getList(): Deferred<List<User>> = coroutineScope {
+        async {
             val random = Random()
-            delay(random.nextInt(2000))
+            delay(random.nextInt(10000))
 //            if (random.nextBoolean()) {
 //                throw IOException()
 //            }
             List(random.nextInt(30)) {
-                User(it,"User $it")
+                User(it, "User $it")
             }
         }
     }
 
-    fun isStarred(id: Int): Deferred<Boolean> {
-        return async {
+    suspend fun isStarred(id: Int): Deferred<Boolean> = coroutineScope {
+        async {
             val random = Random()
             delay(random.nextInt(50))
             random.nextBoolean()
         }
     }
 
-    fun toggleUser(user: User): Deferred<User> {
-        return async {
+    suspend fun toggleUser(user: User): Deferred<User> = coroutineScope {
+        async {
             val random = Random()
             delay(random.nextInt(2000))
 //            if (random.nextBoolean()) {
