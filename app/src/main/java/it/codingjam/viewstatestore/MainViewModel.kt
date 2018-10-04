@@ -20,7 +20,7 @@ class MainViewModel(
     }
 
     fun loadData() {
-        store.dispatchActions(useCase.getListLce())
+        store.dispatchActions(useCase.getList())
 //        store.dispatchAction { useCase.getList() }
     }
 
@@ -30,17 +30,13 @@ class MainViewModel(
             useCase.toggleUser(it)
         })
         store.dispatchState(newState)
-//        launch {
-//            val newState = useCase.toggleUser(store.state(), position)
-//            store.dispatchState(newState(store.state()))
-//        }
     }
 
-fun toggleUserAsync(position: Int) {
-    store.dispatchAction {
-        useCase.toggleUser(it, position)
+    fun toggleUserAsync(position: Int) {
+        store.dispatchAction {
+            useCase.toggleUser(it, position)
+        }
     }
-}
 
     override fun onCleared() {
         store.cancel()

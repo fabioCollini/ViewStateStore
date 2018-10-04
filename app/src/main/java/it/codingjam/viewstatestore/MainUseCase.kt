@@ -5,11 +5,10 @@ import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.channels.ProducerScope
 import kotlinx.coroutines.experimental.channels.ReceiveChannel
 import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.coroutineScope
 
 class MainUseCase(private val repository: Repository) {
 
-    suspend fun getList(): Action<UserListViewState> {
+    suspend fun getListSingleAction(): Action<UserListViewState> {
         val users = repository.getList().await()
                 .map { it to repository.isStarred(it.id) }
                 .map { (user, deferred) ->
@@ -18,7 +17,7 @@ class MainUseCase(private val repository: Repository) {
         return Action { UserListViewState(users) }
     }
 
-    fun getListLce(): ReceiveChannel<Action<UserListViewState>> = produceActions {
+    fun getList(): ReceiveChannel<Action<UserListViewState>> = produceActions {
         send { copy(loading = true, error = null) }
         try {
             val users = repository.getList().await()
@@ -29,22 +28,6 @@ class MainUseCase(private val repository: Repository) {
             send { copy(users = users, loading = false) }
         } catch (e: Exception) {
             send { copy(error = e, loading = false) }
-        }
-    }
-
-    suspend fun getListLce2(): ReceiveChannel<Action<UserListViewState>> = coroutineScope {
-        produce<Action<UserListViewState>> {
-            send(Action { copy(loading = true, error = null) })
-            try {
-                val users = repository.getList().await()
-                        .map { it to repository.isStarred(it.id) }
-                        .map { (user, deferred) ->
-                            user.copy(starred = deferred.await())
-                        }
-                send(Action { copy(users = users, loading = false) })
-            } catch (e: Exception) {
-                send(Action { copy(error = e, loading = false) })
-            }
         }
     }
 
@@ -61,7 +44,7 @@ class MainUseCase(private val repository: Repository) {
     suspend fun toggleUser(state: UserListViewState, position: Int): Action<UserListViewState> {
         val newUser = repository.toggleUser(state.users[position]).await()
         return Action {
-            copy(users = users.replaceAt(position) { newUser })
+            copy(users = users.replaceAt(position, newUser))
         }
     }
 }
